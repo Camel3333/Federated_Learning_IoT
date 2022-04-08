@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  server:
+    build: ./server
+    image: 127.0.0.1:5000/server
+    env_file:
+      - ./server/.env.example
+    environment:
+      - SERVER_ADDRESS=0.0.0.0:8080
+    ports:
+      - "8080:8080"
+    command: python server/main.py
+  client:
+    build: ./client
+    image: 127.0.0.1:5000/client
+    env_file:
+      - ./client/.env.example
+    environment:
+      - CLIENT_ID={{.Task.Slot}}
+      - MAX_NUM_OF_CLIENTS=20
+      - SERVER_ADDRESS=server:8080
+    command: python client/main.py
+    deploy:
+      replicas: 3
+    depends_on:
+      - server
